@@ -22,6 +22,19 @@ func main() {
 	fmt.Println("Database Connected!")
 	db.AutoMigrate(&book.Book{})
 
+	//find all with repository
+	bookRepository := book.NewRepository(db)
+
+	bookService := book.NewService(bookRepository)
+	bookHandler := handler.NewBookHandler(bookService)
+
+	/*
+		books, err := bookRepository.FindAll()
+		for _, book := range books {
+			fmt.Println("Title", book.Title)
+		}
+	*/
+
 	//crud
 
 	//create or store data
@@ -41,26 +54,29 @@ func main() {
 		}
 	*/
 
-	//single object
-	var book book.Book
-
-	//for list
-	//var books []book.Book
-
-	err = db.Debug().Where("id = ?", 1).First(&book).Error
-	if err != nil {
-		fmt.Println("===========")
-
-		fmt.Println("There is an error occured!")
-		fmt.Println("===========")
-	}
-
 	/*
-		fmt.Println("===========")
+		//single object
 
-		fmt.Println("Book Title : ", book.Title)
-		fmt.Println("Book Price %w : ", book)
-		fmt.Println("===========")
+		var book book.Book
+
+		//for list
+		//var books []book.Book
+
+		err = db.Debug().Where("id = ?", 1).First(&book).Error
+		if err != nil {
+			fmt.Println("===========")
+
+			fmt.Println("There is an error occured!")
+			fmt.Println("===========")
+		}
+		/*
+
+		/*
+			fmt.Println("===========")
+
+			fmt.Println("Book Title : ", book.Title)
+			fmt.Println("Book Price %w : ", book)
+			fmt.Println("===========")
 	*/
 
 	/*
@@ -88,22 +104,30 @@ func main() {
 		}
 	*/
 
-	err = db.Delete(&book).Error
-	if err != nil {
-		fmt.Println("===========")
+	/*
+		err = db.Delete(&book).Error
+		if err != nil {
+			fmt.Println("===========")
 
-		fmt.Println("There is an error occured when updating record!")
-		fmt.Println("===========")
-	}
+			fmt.Println("There is an error occured when updating record!")
+			fmt.Println("===========")
+		}
+	*/
 	router := gin.Default()
 	//api route versioning
 	v1 := router.Group("/v1")
 
-	router.GET("/", handler.RouteHandler)
-	v1.GET("/hello", handler.HelloHandler)
-	v1.GET("/book/:id", handler.BooksHandler)
-	v1.GET("/book", handler.BooksParamHandler)
-	v1.POST("/bookpost", handler.PostBooksHandler)
+	/*
+		router.GET("/", handler.RouteHandler)
+		v1.GET("/hello", handler.HelloHandler)
+		v1.GET("/book/:id", handler.BooksHandler)
+		v1.GET("/book", handler.BooksParamHandler)
+	*/
+	v1.GET("/books", bookHandler.GetBooksHandler)
+	v1.GET("/book/:id", bookHandler.GetBookHandler)
+	v1.PUT("/book/update/:id", bookHandler.UpdateBookHandler)
+	v1.DELETE("/book/delete/:id", bookHandler.DeleteBookHandler)
+	v1.POST("/bookpost", bookHandler.PostBooksHandler)
 	//atur route port
-	router.Run(":1234")
+	router.Run(":1406")
 }
